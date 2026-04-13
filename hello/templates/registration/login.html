@@ -1,0 +1,32 @@
+{% extends "hello/layout.html" %}
+
+{% block title %}
+Login
+{% endblock %}
+
+{% block content %}
+<h1>Welcome back!</h1>
+<p>Please log in to access features available only for authenticated users.</p>
+
+<!--  w przypadku logowania django korzysta z wbudowanego szablonu autoryzacji  -->
+<!--  reszta w settings.py w zakładce TEMPLATES -->
+<div class = "login-container">
+    <div class = "login-box">
+        <h2>Please log in here!</h2>
+
+        <form method="post">
+            <!-- CSRF token for security, nikt nie podłoży formularza pod moją stronę -->
+            {% csrf_token %}
+  
+            {{ form.as_p }}
+
+            <button type="submit" class="btn-login">Log In!</button>
+        </form>
+    </div>
+</div>
+
+<p>Don't have an account yet? No worries!</p>
+<p>Please check the button below.</p>
+<a href="{% url 'signup' %}" class="btn-cta">Sign up here!</a></p>
+
+{% endblock %}

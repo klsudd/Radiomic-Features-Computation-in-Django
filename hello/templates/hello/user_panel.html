@@ -1,0 +1,23 @@
+{% extends "hello/layout.html" %}
+
+{% block title %}
+User Panel
+{% endblock %}
+
+{% block content %}
+    <h1>Welcome to your User Panel!</h1>
+    <p>From here you can navigate through this app functionalities.</p>
+
+    {% if user.is_authenticated %}
+        <p>Hello, {{ user.username }}! You have logged in successfully.</p>
+        <br>
+        <p>Want to log out? Check the navigation menu or click the button below.</p>
+        <form action = "{% url 'logout' %}" method="post">
+            {% csrf_token %}
+            <button type="submit" class="small-btn-login">Log Out</button>
+        </form>
+
+    {% else %}
+        <p>You are not logged in. Please <a href="{% url 'login' %}">log in</a> to access more of this app features!</p>
+    {% endif %}
+{% endblock %}

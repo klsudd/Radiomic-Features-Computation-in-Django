@@ -1,0 +1,21 @@
+{% extends "hello/layout.html" %}
+
+{% block title %}
+Create Mask
+{% endblock %}
+
+{% block content %}
+    <h1>Please create a binary mask of your selected image!</h1>
+    <p>Here you can create a mask and proceed with the computations.</p>
+    
+    {% if user.is_authenticated %}
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="small-btn-login">Create Mask</button>
+    </form>
+    {% else %}
+        <p>You are not logged in. Please <a href="{% url 'login' %}">log in</a> to access more features.</p>
+    {% endif %}
+
+{% endblock %}

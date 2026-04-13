@@ -1,0 +1,22 @@
+{% extends "hello/layout.html" %}
+
+{% block title %}
+Add Image
+{% endblock %}
+
+{% block content %}
+    <h1>Please add your selected image!</h1>
+    <p>Here you can upload your images to our local database.</p>
+    <br>
+    <p>Check the button below to access more functionalities.</p>
+    
+    {% if user.is_authenticated %}
+    <a href="{% url 'upload_image' %}" class="small-btn-login">
+        Upload
+    </a>
+
+    {% else %}
+        <p>You are not logged in. Please <a href="{% url 'login' %}">log in</a> to access more features.</p>
+    {% endif %}
+
+{% endblock %}

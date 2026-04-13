@@ -1,0 +1,30 @@
+{% extends "hello/layout.html" %}
+
+{% block title %}
+Sign Up
+{% endblock %}
+
+{% block content %} 
+    <h1>Join us!</h1>
+    <p>Please sign up to access features available only for authenticated users.</p>
+
+    <div class = "signup-container">
+        <div class = "signup-box">
+            <h2>Please sign up here!</h2>
+
+            <form method="post">
+                {% csrf_token %}
+  
+                {{ form.as_p }}
+
+                <button type="submit" class="btn-login">Sign Up!</button>
+            </form>
+        </div>
+    </div>
+
+    <br>
+    <p>Already have an account? Perfect!</p>
+    <p>Please don't waste any time andlog in using the button below.</p>
+    <a href="{% url 'login' %}" class="btn-cta">Log in here!</a></p>
+
+{% endblock %}

@@ -1,0 +1,78 @@
+{% extends "hello/layout.html" %}
+
+{% block title %}
+Upload Image
+{% endblock %}
+
+{% block content %}
+
+<h1>Upload your image here!</h1>
+<p>Here you can upload your image and proceed with the computations later.</p>
+
+<div class = "upload-container">
+    <div class = "upload-box">
+
+        <h2>Please insert the Image Title and select your desired image from your local files!!</h2>
+        <br>
+
+        {% if user.is_authenticated %}
+        <form method="post" enctype="multipart/form-data">
+
+            {% csrf_token %}
+
+            <p>{{ form.title.label_tag }} {{ form.title }}</p>
+
+            <p>📸 Choose and add the Image:</p>
+
+            <div class="file-upload-wrapper">
+                <label for="{{ form.image.id_for_label }}" class="custom-file-upload">
+                    Add
+                </label>
+                {{ form.image }}
+            </div>
+
+            <br>
+            <p>Whenever you are done with the image upload, click the Upload Image button!</p>
+
+            <button type="submit" class="btn-login">
+                Upload Image
+            </button>
+        </form>
+
+    </div>
+</div>
+        
+        <br>
+        <p>Got lost?</p>
+        <p>Want to go back to the user panel? No worries!!!
+        <p> Check the button below in order to do so.</p>
+            
+        <a href="{% url 'user_panel' %}" class="small-btn-login">
+            User Panel
+        </a>
+
+        {% else %}
+            <p>You are not logged in. Please <a href="{% url 'login' %}">log in</a> to access more features.</p>
+        {% endif %}
+
+<script>
+    // document.querySelector - znajdź mi na stronie
+    // szuka pierwszego napotkanego na stronie pola do przesyłania plików (fileInput)
+    // szuka elementu z klasą custom-file-upload (fileLabel) - przycisk Add
+
+    const fileInput = document.querySelector('input[type="file"]');
+    const fileLabel = document.querySelector('.custom-file-upload');
+
+    // nasłuchiwanie na zmianę w polu do przesyłania plików (fileInput)
+    // gdy użytkownik skończy wybierać plik w oknie, odpala się 'change'
+    fileInput.addEventListener('change', function() {
+        // sprawdzam czy plik istnieje i czy jest wybrany (this.files && this.files.length > 0)
+        if (this.files && this.files.length > 0) {
+
+            fileLabel.textContent = "Selected: " + this.files[0].name;
+        }
+    });
+</script>
+
+{% endblock %}
+
