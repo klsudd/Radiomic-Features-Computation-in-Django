@@ -1,7 +1,7 @@
 from datetime import datetime
 import re
 
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404, render
 
 from django.http import HttpResponse
 
@@ -72,3 +72,52 @@ def upload_image(request):
     # silnik szuka miejsc oznaczonych jako {{ form }} w szablonie upload_image.html i tam wstawia kod HTML wygenerowany przez formę, który zawiera pola formularza i ewentualne komunikaty o błędach.  
     
     return render(request, 'hello/upload_image.html', {'form': form})
+
+
+# POBIERAM ZDJĘCIA Z BAZY DANYCH I WYSWIETLAM JE!!!!!!!!
+from .models import Mask, UserImage
+
+import base64
+
+@login_required
+def select_image_for_binary_mask(request):
+    images = UserImage.objects.all() # wszystkie zdjęcia z bazy danych, które są przechowywane w modelu UserImage (czyli w tabeli UserImage w bazie danych)
+    return render(request, "hello/select_image_for_binary_mask.html", {'images': images})
+
+# TUTAJ WIDOK DO TWORZENIA MASKI NA PODSTAWIE WYBRANEGO ZDJĘCIA, ALE TO JEST W SZABLONIE, BO TAM JEST JS, A NIE PYTHON
+@login_required
+def create_binary_mask(request, image_id):
+    image = UserImage.objects.get(id=image_id) # wybrane zdjęcie z bazy danych, które ma być użyte do tworzenia maski, image_id to parametr przekazywany w URL, który identyfikuje konkretne zdjęcie w bazie danych
+    
+    return render(request, "hello/create_binary_mask.html", {
+        'image_url': image.image.url,
+        'image_id': image_id
+    })
+    
+import re
+from django.core.files.base import ContentFile
+    
+@login_required
+def save_mask(request, image_id):
+    if request.method == 'POST':
+        # wyciągam tekst w formacie base64 z danych przesłanych przez użytkownika (mask_base64)
+        mask_base64 = request.POST.get('mask_base64')
+        
+        # usuwam prefiks base64, który jest dodawany do danych obrazu, aby uzyskać czyste dane binarne maski
+        mask_data = re.sub('^data:image/.+;base64,', '', mask_base64)
+        
+        # zamiana base64 na dane binarne do obrazka png
+        mask_binary = base64.b64decode(mask_data)
+        
+        file_name = f"mask_{image_id}_{request.user.id}.png"
+        mask_file = ContentFile(mask_binary, name=file_name)
+            
+        # wyświetl błąd w razie problemów z dekodowaniem
+        original_image = get_object_or_404(UserImage, id=image_id)
+
+        # nowy wiersz w tabeli hello_mask z nazwą maski - w bazie jest tylko ścieżka do tego pliku
+        new_mask = Mask.objects.create(
+            image=mask_file,
+        )
+            
+        return redirect('user_panel')

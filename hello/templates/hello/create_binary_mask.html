@@ -1,0 +1,110 @@
+{% extends "hello/layout.html" %}
+
+{% block title %}
+Please create a Binary Mask of your choice here 
+{% endblock %}
+
+{% block content %}
+    <h1>Create Binary Mask</h1>
+    <p>Here you can create an ellipse-shaped binary mask for the selected image!</p>
+
+    <p>Selected Image: {{ image.title }}</p>
+
+    {% if user.is_authenticated %}
+
+    <style>
+        #maskCanvas {
+            max-width: 600px;
+            height: auto;
+            width: 100%;
+            border: 1px solid #000;
+            cursor: crosshair;
+            background: #000;
+        }
+    </style>
+
+    <!-- canvas jest tylko do tła, na nim rysuje się maskę -->
+    <!-- background czarne powinno tworzyć maskę binarną -->
+    <canvas id="maskCanvas" style="border:1px solid #000; cursor:crosshair; background:#000;"></canvas>
+
+    <!-- post to bezpieczne przesyłanie danych -->
+    <!-- później jest link z adresem docelowym, gdy użytkownik kliknie przycisk, wyślij dane pod ten adres -->
+    <form id="saveForm" method="POST" action="{% url 'save_mask' image_id %}">
+        {% csrf_token %}
+
+        <!-- pole ukryte do przechowywania danych maski w formacie base64 -->
+        <!-- w views.py wyciagam dane pod nazwą mask_base64 -->
+        <!-- base64 to takie opakowanie danych w formacie tekstowym -->
+        <!-- gdy tekst dojdzie już do django, to dekodujemy go i zamieniamy jako obraz .png -->
+        <input type="hidden" name="mask_base64" id="mask_base64">
+        
+        <br>
+        <button type="button" onclick="clearCanvas()" class="small-btn-login">Clear</button>
+        <button type="submit" class="btn-login">Save Mask</button>
+    </form>
+</div>
+
+<script>
+    const canvas = document.getElementById('maskCanvas'); // znajduje element canvas po id
+    const ctx = canvas.getContext('2d'); // zestaw pędzi i narzędzi
+    const img = new Image(); // scaffold na obraz
+
+    img.src = "{{ image_url }}"; // source
+    img.onload = () => { // .onload uruchamia się tylko wtedy, kiedy zdjęcie zostanie poprawnie pobrane z serwera
+        canvas.width = img.width;
+        canvas.height = img.height;
+        ctx.drawImage(img, 0, 0); // kopiowanie obrazu na canvas
+    };
+
+    let start_X, start_Y, isDrawing = false; // gdzie użytkownik kliknął myszką
+
+    canvas.onmousedown = (e) => { // wywołuje się gdy użytkownik kliknie lewy przycisk myszy
+        const rect = canvas.getBoundingClientRect(); // pobiera pozycję canvas względem okna przeglądarki, żeby wiedzieć gdzie dokładnie kliknął użytkownik
+        start_X = e.clientX - rect.left; // współrzędne kliknięcia względem canvas
+        start_Y = e.clientY - rect.top;
+        isDrawing = true; // znaczy że rysujemy
+    };
+
+    canvas.onmousemove = (e) => { // wywołuje się gdy użytkownik porusza myszą
+        if (!isDrawing) return; // zaprzeczenie
+        
+        const rect = canvas.getBoundingClientRect();
+        const curr_X = e.clientX - rect.left; // aktualizacja współrzędnych
+        const curr_Y = e.clientY - rect.top;
+
+        ctx.drawImage(img, 0, 0); // odświeżenie tła (oryginalnego obrazu)
+        
+        drawEllipse(start_X, start_Y, curr_X, curr_Y); // rysowanie kształtu od aktualnej pozycji myszy
+    };
+
+    canvas.onmouseup = () => { isDrawing = false; }; // zatwierdzenie przy puszczeniu myszy
+
+    function drawEllipse(x1, y1, x2, y2) {
+        ctx.beginPath();
+        let radiusX = Math.abs(x2 - x1);
+        let radiusY = Math.abs(y2 - y1);
+        
+        ctx.ellipse(x1, y1, radiusX, radiusY, 0, 0, 2 * Math.PI);
+        
+        ctx.strokeStyle = "white";
+        ctx.lineWidth = 5;
+        ctx.stroke();
+        
+        ctx.fillStyle = "white";
+        ctx.fill();
+    }
+
+    function clearCanvas() {
+        ctx.drawImage(img, 0, 0);
+    }
+
+    document.getElementById('saveForm').onsubmit = function() {
+        document.getElementById('mask_base64').value = canvas.toDataURL('image/png');
+    };
+</script>
+
+    {% else %}
+        <p>You are not logged in. Please <a href="{% url 'login' %}">log in</a> to access more features.</p>
+    {% endif %}
+
+{% endblock %}

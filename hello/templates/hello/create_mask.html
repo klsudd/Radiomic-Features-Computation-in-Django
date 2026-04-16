@@ -12,7 +12,11 @@ Create Mask
     <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
         {{ form.as_p }}
-        <button type="submit" class="small-btn-login">Create Mask</button>
+
+        <a href="{% url 'select_image_for_binary_mask' %}" class="small-btn-login">
+            Select Image for Mask Creation
+        </a>
+
     </form>
     {% else %}
         <p>You are not logged in. Please <a href="{% url 'login' %}">log in</a> to access more features.</p>

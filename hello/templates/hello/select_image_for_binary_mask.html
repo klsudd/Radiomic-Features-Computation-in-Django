@@ -1,0 +1,34 @@
+{% extends "hello/layout.html" %}
+
+{% block title %}
+Select Image for Binary Mask
+{% endblock %}
+
+{% block content %}
+    <h1>Select an Image for Binary Mask Creation</h1>
+    <p>Here you can select an image from your uploaded images to create a binary mask.</p>
+
+    {% if user.is_authenticated %}
+        <p>Hello, {{ user.username }}! Please select an image from the list below to create a binary mask.</p>
+
+        <!-- Sprawdzam czy coś jest wgl w tej liście -->
+        {% if images %}
+            <ul>
+                <!-- bullet points -->
+                {% for image in images %}
+                    <li>
+                        <a href="{% url 'create_binary_mask' image.id %}">
+                            {{ image.title }}
+                        </a>
+                    </li>
+                {% endfor %}
+            </ul>
+
+        {% else %}
+            <p>You have not uploaded any images yet. Please <a href="{% url 'upload_image' %}">upload an image</a> to get started!</p>
+        {% endif %}
+
+    {% else %}
+        <p>You are not logged in. Please <a href="{% url 'login' %}">log in</a> to access more features.</p>
+    {% endif %}
+{% endblock %}

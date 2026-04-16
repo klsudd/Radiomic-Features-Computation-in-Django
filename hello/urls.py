@@ -19,6 +19,12 @@ urlpatterns = [
     path("create_mask/", views.create_mask, name="create_mask"),
     
     path("upload/", views.upload_image, name="upload_image"),
+    
+    
+    path("select_image_for_binary_mask/", views.select_image_for_binary_mask, name="select_image_for_binary_mask"),
+    path("create_binary_mask/<int:image_id>/", views.create_binary_mask, name="create_binary_mask"),
+    
+    path("save_mask/<int:image_id>/", views.save_mask, name="save_mask"),
 ]
 
 from django.conf import settings
