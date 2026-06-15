@@ -5,8 +5,10 @@ Sign Up
 {% endblock %}
 
 {% block content %} 
+<div class="centered">
     <h1>Join us!</h1>
-    <p>Please sign up to access features available only for authenticated users.</p>
+    <h3>Please sign up to access features available only for authenticated users.</h3>
+    <br>
 
     <div class = "signup-container">
         <div class = "signup-box">
@@ -22,9 +24,9 @@ Sign Up
         </div>
     </div>
 
-    <br>
+    <br><br>
     <p>Already have an account? Perfect!</p>
-    <p>Please don't waste any time andlog in using the button below.</p>
-    <a href="{% url 'login' %}" class="btn-cta">Log in here!</a></p>
-
+    <p>Please don't waste any time and log in using the button below.</p>
+    <a href="{% url 'login' %}" class="small-btn-login">Log in here!</a></p>
+</div>
 {% endblock %}

@@ -5,24 +5,30 @@ Home
 {% endblock %}
 
 {% block content %}
-    <h1>Nice to see you!</h1>
-    <h2>Welcome to the Home Page of this app.</h2>
-    <p>Please log in below or explore the other available tabs in the navigation bar!</p>
-
-    {% if user.is_authenticated %}
-        <p>Hello, {{ user.username }}! You are logged in.</p>
-
-        <form action = "{% url 'logout' %}" method="post">
-            {% csrf_token %}
-            <button type="submit" class="small-btn-login">Log Out</button>
-        </form>
-
-    {% else %}
+    <div class="centered">
+        <h1>Nice to see you!</h1>
+        <h2>Welcome to the Home Page of this app.</h2>
         <br>
-        <p>You are not logged in.</p> 
-        <p>Want to log in? Check the nav-bar of click the button below!</p>
-        <form action = "{% url 'login' %}" method="get">
-            <button type="submit" class="small-btn-login">Log in</button>
-        </form>
-    {% endif %}
+        <h4>Please log in below or explore the other available tabs in the navigation bar!</h4>
+        <br>
+
+        {% if user.is_authenticated %}
+            <p>Hello, {{ user.username }}! You are logged in.</p>
+
+            <form action = "{% url 'logout' %}" method="post">
+                {% csrf_token %}
+                <button type="submit" class="small-btn-login">Log Out</button>
+            </form>
+
+        {% else %}
+            <br>
+            <p>You are not logged in.</p>
+            <p>Want to log in? Check the nav-bar or click the button below!</p>
+            <form action = "{% url 'login' %}" method="get">
+                <button type="submit" class="small-btn-login">
+                    <i class="bi bi-door-open"></i> Log in
+                </button>
+            </form>
+        {% endif %}
+    </div>
 {% endblock %}

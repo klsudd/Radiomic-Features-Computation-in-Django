@@ -5,28 +5,33 @@ Login
 {% endblock %}
 
 {% block content %}
-<h1>Welcome back!</h1>
-<p>Please log in to access features available only for authenticated users.</p>
+<div class="centered">
+    <h1>Welcome back!</h1>
+    <h3>Please log in to access features available only for authenticated users.</h3>
 
-<!--  w przypadku logowania django korzysta z wbudowanego szablonu autoryzacji  -->
-<!--  reszta w settings.py w zakładce TEMPLATES -->
-<div class = "login-container">
-    <div class = "login-box">
-        <h2>Please log in here!</h2>
+    <!--  w przypadku logowania django korzysta z wbudowanego szablonu autoryzacji  -->
+    <!--  reszta w settings.py w zakładce TEMPLATES -->
+    <div class = "login-container">
+        <div class = "login-box">
+            <h2>Insert your login credentials</h2>
+            <br>
 
-        <form method="post">
-            <!-- CSRF token for security, nikt nie podłoży formularza pod moją stronę -->
-            {% csrf_token %}
+            <form method="post">
+                <!-- CSRF token for security, nikt nie podłoży formularza pod moją stronę -->
+                {% csrf_token %}
   
-            {{ form.as_p }}
+                {{ form.as_p }}
 
-            <button type="submit" class="btn-login">Log In!</button>
-        </form>
+                <button type="submit" class="btn-login">Log In!</button>
+            </form>
+        </div>
     </div>
-</div>
 
+<br>
 <p>Don't have an account yet? No worries!</p>
 <p>Please check the button below.</p>
-<a href="{% url 'signup' %}" class="btn-cta">Sign up here!</a></p>
-
+<a href="{% url 'signup' %}" class="small-btn-login">
+    <i class="bi bi-person-plus"></i>
+    Sign up here!</a></p>
+</div>
 {% endblock %}

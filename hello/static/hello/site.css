@@ -18,80 +18,6 @@
 }
 
 
-
-
-
-/* NAVBAR */
-.navbar {
-    background-color: #38598b;
-    font-size: 1em;
-    font-family: 'Inter', sans-serif;
-    color: white;
-    padding: 8px 5px 8px 5px;
-    display: flex;
-    align-items: center;
-}
-
-.navbar a {
-    text-decoration: none;
-    color: inherit;
-}
-
-.navbar-brand {
-    font-size: 1em;
-    font-weight: 600;
-    padding: 10px 10px;
-    margin-left: 15px;
-    border-radius: 4px;
-    transition: background-color 0.3s ease; /* przejście */
-}
-
-.navbar-brand:hover {
-    background-color: #5275aa;
-    transform: translateY(1px);
-}
-
-.navbar-brand.active {
-    background-color: rgba(0, 0, 0, 0.2);
-    color: white;
-    font-weight: bold;
-    /* border-bottom: 2px solid #fff; */
-}
-
-.navbar-item {
-    font-variant: small-caps;
-    margin-left: 30px;
-    padding: 5px 10px;
-    border-radius: 4px;
-    transition: background-color 0.3s ease; /* przejście */
-}
-
-.navbar-item:hover {
-    background-color: #5275aa;
-    transform: translateY(1px);
-}
-
-.navbar-item.active {
-    background-color: rgba(0, 0, 0, 0.2);
-    color: white;
-    font-weight: bold;
-    /* border-bottom: 2px solid #fff; */
-}
-
-.navbar-brand {
-    padding: 5px 15px;
-    border-radius: 7px;
-    transition: background-color 0.3s ease; /* przejście */
-}
-
-.navbar-brand:hover {
-    background-color: #5275aa;
-    transform: translateY(1px);
-}
-
-
-
-
 /* BODY */
 .body-content {
     padding: 0 20px;
@@ -99,6 +25,37 @@
     color: #113f67;
     margin: 50px auto;
     max-width: 800px;
+}
+
+/* Utility class to center text on specific pages */
+.centered {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 12px;
+}
+
+/* Tables: increase spacing between columns and improve padding for readability */
+.radiomics-mask-table,
+#radiomicsTable {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 18px 10px; /* horizontal, vertical spacing between cells */
+    margin: 0 auto 20px auto;
+}
+.radiomics-mask-table th,
+.radiomics-mask-table td,
+#radiomicsTable th,
+#radiomicsTable td {
+    padding: 12px 18px;
+    text-align: left;
+    vertical-align: middle;
+}
+.radiomics-mask-table thead th,
+#radiomicsTable thead th {
+    font-weight: 700;
+    color: #113f67;
 }
 
 .h1 {
@@ -124,6 +81,7 @@
     align-items: center;
     color: #e7eaf6;
     height: 80vh;
+    width: 500px;
 }
 
 .signup-box {
@@ -131,7 +89,7 @@
     padding: 2rem;
     border-radius: 8px;
     box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    width: 700px;
+    width: 500px;
 }   
 
 .signup-box form p {
@@ -163,7 +121,7 @@
     padding: 2rem;
     border-radius: 8px;
     box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    width: 400px;
+    width: 500px;
 }
 
 upload-box form p {
@@ -179,6 +137,28 @@ upload-box form p {
     box-sizing: border-box;
 }
 
+/* Styled inputs for forms matching site aesthetic */
+.styled-input {
+    width: 100%;
+    max-width: 420px;
+    padding: 12px 14px;
+    margin-top: 16px;
+    border: 1px solid #a9b7d6;
+    border-radius: 12px;
+    background-color: #f3f5fb;
+    color: #193659;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+    font-size: 0.98rem;
+    box-shadow: inset 0 1px 3px rgba(31, 56, 100, 0.08);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.styled-input:focus {
+    outline: none;
+    border-color: #375b94;
+    box-shadow: inset 0 1px 3px rgba(31, 56, 100, 0.1), 0 0 0 4px rgba(56, 89, 139, 0.08);
+}
+
 
 
 input[type="file"] {
@@ -192,12 +172,15 @@ input[type="file"] {
     cursor: pointer;
     background-color: #6b89c4;
     color: white;
-    border-radius: 4px;
-    transition: background-color 0.3s ease;
+    border-radius: 7px;
+
+    box-shadow: 0 4px 15px rgba(59, 89, 152, 0.3);
+    transition: all 0.3s ease;
 }
 
 .custom-file-upload:hover {
     background-color: #86ace4;
+    transform: translateY(-2px);
 }
 
 file-upload-wrapper {
@@ -233,6 +216,7 @@ input[type="file"]::file-selector-button:hover {
     align-items: center;
     color: #e7eaf6;
     height: 60vh;
+    width: 500px;
 }
 
 .login-box {
@@ -240,7 +224,7 @@ input[type="file"]::file-selector-button:hover {
     padding: 2rem;
     border-radius: 8px;
     box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    width: 300px;
+    width: 500px;
 }
 
 /* odległość między elementami */
@@ -270,17 +254,19 @@ input[type="file"]::file-selector-button:hover {
 
     border-radius: 7px;
     font-weight: bold;
-    transition: background-color 0.3s ease;
 
     width: fit-content;
 
     text-decoration: none;
+
+    box-shadow: 0 4px 15px rgba(59, 89, 152, 0.3);
+    transition: all 0.3s ease;
 }
 
 .small-btn-login:hover {
     background-color: #38598b;
     color: white;
-    transform: translateY(-1px);
+    transform: translateY(-2px);
 }
 
 .small-btn-login-nav {
@@ -292,13 +278,15 @@ input[type="file"]::file-selector-button:hover {
     margin-left: auto;
     border-radius: 7px;
     font-weight: bold;
-    transition: background-color 0.3s ease;
+
+    box-shadow: 0 4px 15px rgba(196, 213, 251, 0.3);
+    transition: all 0.3s ease;
 }
 
 .small-btn-login-nav:hover {
     background-color: #c8d4e7;
     color: white;
-    transform: translateY(-0.5px);
+    transform: translateY(-2px);
 }
 
 .login-form-nav {
@@ -313,9 +301,11 @@ input[type="file"]::file-selector-button:hover {
     border: none;
     padding: 10px;
     cursor: pointer;
-    border-radius: 4px;
+    border-radius: 7px;
     font-weight: bold;
-    transition: 0.3s;
+
+    box-shadow: 0 4px 15px rgba(98, 144, 244, 0.3);
+    transition: all 0.3s ease;
 }
 
 .upload-image-btn {
@@ -340,6 +330,7 @@ input[type="file"]::file-selector-button:hover {
 
 .btn-login:hover {
     background-color: #5275aa;
+    transform: translateY(-2px);
 }
 
 .btn-cta {

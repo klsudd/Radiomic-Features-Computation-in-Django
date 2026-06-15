@@ -5,24 +5,68 @@ Radiomic Results
 {% endblock %}
 
 {% block content %}
+<div class="centered">
     <h1>Check out your radiomic results!!</h1>
-    <p>Here are the radiomic features for the selected mask.</p>
+    <h3>Here are the radiomic features for the selected mask.</h3>
 
     {% if user.is_authenticated %}
-        <p>Hello, {{ user.username }}! Here are the radiomic results for your selected mask:</p>
+    <br>
+        <h5>Hello, {{ user.username }}! Here are the radiomic results for your selected mask:</h5>
+        <br>
         <p><strong>Mask:</strong> {{ mask.name }} &mdash; <em>{{ mask.user_image.title }}</em></p>
 
-        <div class = "filters" style="margin-bottom: 20px;">
-            <h2>Please filter the features you want to see below:</h2>
-
-            <label><input type="checkbox" id="show_diagnostic" checked onchange="filterTable()">Diagnostic</label>
-
-            <label><input type="checkbox" id="show_shape" checked onchange="filterTable()">Shape 2D</label>
-            <label><input type="checkbox" id="show_first_order" checked onchange="filterTable()">First Order</label>
-            <label><input type="checkbox" id="show_glcm" checked onchange="filterTable()">GLCM</label>
-            <label><input type="checkbox" id="show_glrlm" checked onchange="filterTable()">GLRLM</label>
-
-            <label><input type="checkbox" id="show_other" checked onchange="filterTable()">Other</label>
+        <div class="filters card p-4" style="margin-bottom: 20px; background-color: #f8f9fa; border: 1px solid #e0e0e0;">
+            <h5 class="card-title mb-3">Filter Features by Category</h5>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="show_diagnostic" checked onchange="filterTable()">
+                        <label class="form-check-label" for="show_diagnostic">
+                            Diagnostic
+                        </label>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="show_shape" checked onchange="filterTable()">
+                        <label class="form-check-label" for="show_shape">
+                            Shape 2D
+                        </label>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="show_first_order" checked onchange="filterTable()">
+                        <label class="form-check-label" for="show_first_order">
+                            First Order
+                        </label>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="show_glcm" checked onchange="filterTable()">
+                        <label class="form-check-label" for="show_glcm">
+                            GLCM
+                        </label>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="show_glrlm" checked onchange="filterTable()">
+                        <label class="form-check-label" for="show_glrlm">
+                            GLRLM
+                        </label>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="show_other" checked onchange="filterTable()">
+                        <label class="form-check-label" for="show_other">
+                            Other
+                        </label>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <table id="radiomicsTable">
@@ -73,6 +117,7 @@ Radiomic Results
                 });
             }
         </script>
+</div>
 
     {% else %}
         <p>You are not logged in. Please <a href="{% url 'login' %}">log in</a> to access more features.</p>

@@ -5,24 +5,34 @@ Select Image for Binary Mask
 {% endblock %}
 
 {% block content %}
-    <h1>Select an Image for Binary Mask Creation</h1>
-    <p>Here you can select an image from your uploaded images to create a binary mask.</p>
+<div class="centered">
+    <h1>Here you can create a binary mask of your desired image</h1>
+    <h3>Select a file of your choice from the list below and proceed with the computations.</h3>
+    <br><br>
 
     {% if user.is_authenticated %}
-        <p>Hello, {{ user.username }}! Please select an image from the list below to create a binary mask.</p>
+        <h5>Hello, {{ user.username }}! Take a look at the list of images already in the database and decide which to use!</h5>
 
         <!-- Sprawdzam czy coś jest wgl w tej liście -->
         {% if images %}
-            <ul>
-                <!-- bullet points -->
-                {% for image in images %}
-                    <li>
-                        <a href="{% url 'create_binary_mask' image.id %}">
-                            {{ image.title }}
-                        </a>
-                    </li>
-                {% endfor %}
-            </ul>
+            <table class="table table-hover table-striped">
+                <thead class="table-light">
+                    <tr>
+                        <th scope="col">Image Title</th>
+                        <th scope="col">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for image in images %}
+                        <tr>
+                            <td class="text-center">{{ image.title }}</td>
+                            <td>
+                                <a href="{% url 'create_binary_mask' image.id %}" class="small-btn-login">Create Mask</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
 
         {% else %}
             <p>You have not uploaded any images yet. Please <a href="{% url 'upload_image' %}">upload an image</a> to get started!</p>
@@ -31,4 +41,5 @@ Select Image for Binary Mask
     {% else %}
         <p>You are not logged in. Please <a href="{% url 'login' %}">log in</a> to access more features.</p>
     {% endif %}
+</div>
 {% endblock %}

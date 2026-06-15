@@ -5,55 +5,62 @@ Upload Image
 {% endblock %}
 
 {% block content %}
+<div class="centered">
+    <h1>Upload your image here!</h1>
+    <h3>Here you can upload your image and proceed with the computations later.</h3>
 
-<h1>Upload your image here!</h1>
-<p>Here you can upload your image and proceed with the computations later.</p>
+    <br>
+    <h5>Please insert the Image Title and select your desired image from local files</h5>
 
-<div class = "upload-container">
-    <div class = "upload-box">
+    <div class = "upload-container">
+        <div class = "upload-box">
 
-        <h2>Please insert the Image Title and select your desired image from your local files!!</h2>
-        <br>
-
-        {% if user.is_authenticated %}
-        <form method="post" enctype="multipart/form-data">
-
-            {% csrf_token %}
-
-            <p>{{ form.title.label_tag }} {{ form.title }}</p>
-
-            <p>📸 Choose and add the Image:</p>
-
-            <div class="file-upload-wrapper">
-                <label for="{{ form.image.id_for_label }}" class="custom-file-upload">
-                    Add
-                </label>
-                {{ form.image }}
-            </div>
-
+            <h2>Insert Image Details</h2>
             <br>
-            <p>Whenever you are done with the image upload, click the Upload Image button!</p>
 
-            <button type="submit" class="btn-login">
-                Upload Image
-            </button>
-        </form>
+            {% if user.is_authenticated %}
+            <form method="post" enctype="multipart/form-data">
 
+                {% csrf_token %}
+
+                <p>{{ form.title.label_tag }} {{ form.title }}</p>
+
+                <p>Choose and add the Image:</p>
+
+                <div class="file-upload-wrapper">
+                    <label for="{{ form.image.id_for_label }}" class="custom-file-upload">
+                        <i class="bi bi-camera"></i>
+                        Add
+                    </label>
+                    {{ form.image }}
+                </div>
+
+                <br>
+                <p>Whenever you are done with the image upload, click the Upload Image button!</p>
+
+                <button type="submit" class="btn-login">
+                    <i class ="bi bi-upload"></i>
+                    Upload Image
+                </button>
+            </form>
+
+        </div>
     </div>
-</div>
         
-        <br>
-        <p>Got lost?</p>
-        <p>Want to go back to the user panel? No worries!!!
-        <p> Check the button below in order to do so.</p>
+            <br>
+            <p>Got lost?</p>
+            <p>Want to go back to the user panel? No worries!!!
+            <p> Check the button below in order to do so.</p>
             
-        <a href="{% url 'user_panel' %}" class="small-btn-login">
-            User Panel
-        </a>
+            <a href="{% url 'user_panel' %}" class="small-btn-login">
+                <i class="bi bi-person-circle"></i>
+                User Panel
+            </a>
 
-        {% else %}
-            <p>You are not logged in. Please <a href="{% url 'login' %}">log in</a> to access more features.</p>
-        {% endif %}
+            {% else %}
+                <p>You are not logged in. Please <a href="{% url 'login' %}">log in</a> to access more features.</p>
+            {% endif %}
+</div>
 
 <script>
     // document.querySelector - znajdź mi na stronie

@@ -5,10 +5,13 @@ Please create a Binary Mask of your choice here
 {% endblock %}
 
 {% block content %}
-    <h1>Create Binary Mask</h1>
-    <p>Here you can create an ellipse-shaped binary mask for the selected image!</p>
+<div class="centered">
+    <h1>Make a binary mask yourself!</h1>
+    <h3>Create an ellipse-shaped binary mask for the selected image!</h3>
 
-    <p>Selected Image: {{ image.title }}</p>
+    <br>
+
+    <h5>Selected Image: {{ image.title }}</h5>
 
     {% if user.is_authenticated %}
 
@@ -37,13 +40,15 @@ Please create a Binary Mask of your choice here
         <!-- base64 to takie opakowanie danych w formacie tekstowym -->
         <!-- gdy tekst dojdzie już do django, to dekodujemy go i zamieniamy jako obraz .png -->
         
-        <input type="text" name="mask_name" placeholder="Enter Mask Name" required>
+        <br>
+        <input type="text" class="styled-input" name="mask_name" placeholder="Enter Mask Name" required>
 
         <input type="hidden" name="mask_base64" id="mask_base64">
         <input type="hidden" name="user_image_id" value="{{ image.id }}">
 
         <br>
         <button type="button" onclick="clearCanvas()" class="small-btn-login">Clear</button>
+        <br><br>
         <button type="submit" class="btn-login">Save Mask</button>
     </form>
 </div>

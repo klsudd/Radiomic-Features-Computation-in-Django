@@ -5,9 +5,27 @@ About
 {% endblock %}
 
 {% block content %}
-    <h1>About this site</h1>
-    <p>It's a simple django app that allows its authenticated users to upload images and proceed with the specific radiomic computations.</p>
-    <p>Want to get a better grip of what radiomic is? Check the link below.</p>
+    <div class="centered">
+        <h1>About this site</h1>
+        <h2>An app build in django that allows its authenticated users to:</h2>
+        <br>
+        <ul>
+            <li>
+                <i class="bi bi-upload"></i>
+                Upload medical images from their devices</li>
+            <li>
+                <i class="bi bi-check-circle"></i>
+                Create binary masks for their images</li>
+            <li>
+                <i class="bi bi-graph-up"></i>
+                Perform radiomic analysis</li>
+            <li>
+                <i class="bi bi-eye"></i>
+                Visualize results in a user-friendly interface</li>
+        </ul>
+        <br>
+        <h7>Want to get a better grip of what radiomic is? Check the link below.</h7>
 
-    <p><a href="https://en.wikipedia.org/wiki/Radiomics" class = "btn-cta">Surprise here</a></p>
+        <p><a href="https://en.wikipedia.org/wiki/Radiomics" class = "small-btn-login">Radiomics' Wikipedia</a></p>
+    </div>
 {% endblock %}
