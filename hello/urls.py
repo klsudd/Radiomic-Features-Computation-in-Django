@@ -25,6 +25,9 @@ urlpatterns = [
     path("create_binary_mask/<int:image_id>/", views.create_binary_mask, name="create_binary_mask"),
     
     path("save_mask/<int:image_id>/", views.save_mask, name="save_mask"),
+
+    path("view_radiomics_results/", views.view_radiomics_results, name="view_radiomics_results"),
+    path("view_radiomics_result/<int:mask_id>/", views.view_radiomics_result, name="view_radiomics_result"),
 ]
 
 from django.conf import settings

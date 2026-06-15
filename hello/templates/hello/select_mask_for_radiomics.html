@@ -1,0 +1,35 @@
+{% extends "hello/layout.html" %}
+
+{% block title %}
+Select Mask for Radiomics
+{% endblock %}
+
+{% block content %}
+    <h1>Select a mask to view radiomic results</h1>
+    <p>Choose a mask that already has radiomics computed and then click View Results.</p>
+
+    {% if masks %}
+        <table class="radiomics-mask-table">
+            <thead>
+                <tr>
+                    <th>Mask Name</th>
+                    <th>Image</th>
+                    <th>Created</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for mask in masks %}
+                    <tr>
+                        <td>{{ mask.name }}</td>
+                        <td>{{ mask.user_image.title }}</td>
+                        <td>{{ mask.created_at|date:"Y-m-d H:i" }}</td>
+                        <td><a href="{% url 'view_radiomics_result' mask.id %}" class="small-btn-login">View Results</a></td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No masks with radiomics results were found. Create a mask first and run the computation.</p>
+    {% endif %}
+{% endblock %}

@@ -11,3 +11,8 @@ from django.contrib import admin
 from .models import UserImage
 
 admin.site.register(UserImage)
+
+from django.contrib import admin
+from .models import RadiomicsResult
+
+admin.site.register(RadiomicsResult)

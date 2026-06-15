@@ -1,0 +1,81 @@
+{% extends "hello/layout.html" %}
+
+{% block title %}
+Radiomic Results
+{% endblock %}
+
+{% block content %}
+    <h1>Check out your radiomic results!!</h1>
+    <p>Here are the radiomic features for the selected mask.</p>
+
+    {% if user.is_authenticated %}
+        <p>Hello, {{ user.username }}! Here are the radiomic results for your selected mask:</p>
+        <p><strong>Mask:</strong> {{ mask.name }} &mdash; <em>{{ mask.user_image.title }}</em></p>
+
+        <div class = "filters" style="margin-bottom: 20px;">
+            <h2>Please filter the features you want to see below:</h2>
+
+            <label><input type="checkbox" id="show_diagnostic" checked onchange="filterTable()">Diagnostic</label>
+
+            <label><input type="checkbox" id="show_shape" checked onchange="filterTable()">Shape 2D</label>
+            <label><input type="checkbox" id="show_first_order" checked onchange="filterTable()">First Order</label>
+            <label><input type="checkbox" id="show_glcm" checked onchange="filterTable()">GLCM</label>
+            <label><input type="checkbox" id="show_glrlm" checked onchange="filterTable()">GLRLM</label>
+
+            <label><input type="checkbox" id="show_other" checked onchange="filterTable()">Other</label>
+        </div>
+
+        <table id="radiomicsTable">
+            <thead>
+                <tr>
+                    <th>Feature Name</th>
+                    <th>Feature Value</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for feature in features %}
+                    <tr class="feature-row {{ feature.category }}">
+                        <td>{{ feature.feature_name }}</td>
+                        <td>{{ feature.feature_value }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <script>
+            function filterTable() {
+                const showDiagnostic = document.getElementById('show_diagnostic').checked;
+                const showShape = document.getElementById('show_shape').checked;
+                const showFirstOrder = document.getElementById('show_first_order').checked;
+                const showGLCM = document.getElementById('show_glcm').checked;
+                const showGLRLM = document.getElementById('show_glrlm').checked;
+                const showOther = document.getElementById('show_other').checked;
+
+                const rows = document.querySelectorAll('#radiomicsTable .feature-row');
+                rows.forEach(row => {
+                    const isDiagnostic = row.classList.contains('diagnostic');
+                    const isShape = row.classList.contains('shape_2d');
+                    const isFirstOrder = row.classList.contains('first_order');
+                    const isGLCM = row.classList.contains('glcm');
+                    const isGLRLM = row.classList.contains('glrlm');
+                    const isOther = row.classList.contains('other');
+
+                    if ((isDiagnostic && showDiagnostic) ||
+                        (isShape && showShape) ||
+                        (isFirstOrder && showFirstOrder) ||
+                        (isGLCM && showGLCM) ||
+                        (isGLRLM && showGLRLM) ||
+                        (isOther && showOther)) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            }
+        </script>
+
+    {% else %}
+        <p>You are not logged in. Please <a href="{% url 'login' %}">log in</a> to access more features.</p>
+    {% endif %}
+
+{% endblock %}

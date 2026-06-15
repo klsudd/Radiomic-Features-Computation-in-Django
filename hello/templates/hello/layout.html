@@ -40,6 +40,13 @@
         Create Mask
         </a>
 
+        <a href="{% url 'view_radiomics_results' %}" class="navbar-item
+        {% if request.resolver_match.url_name == 'view_radiomics_results' %}
+        active
+        {% endif %}">
+        Radiomics Results
+        </a>
+
         <form action="{% url 'logout' %}" method="post" class="login-form-nav">
             {% csrf_token %}
             <button type="submit" class="small-btn-login-nav">Log out</button>
@@ -74,6 +81,14 @@
 </div>
 
 <div class="body-content">
+    {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+                <div class="message {{ message.tags }}">{{ message }}</div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
     {% block content %}
     {% endblock %}
     <hr/>

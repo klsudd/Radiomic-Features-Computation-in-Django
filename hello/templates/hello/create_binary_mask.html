@@ -36,8 +36,12 @@ Please create a Binary Mask of your choice here
         <!-- w views.py wyciagam dane pod nazwą mask_base64 -->
         <!-- base64 to takie opakowanie danych w formacie tekstowym -->
         <!-- gdy tekst dojdzie już do django, to dekodujemy go i zamieniamy jako obraz .png -->
-        <input type="hidden" name="mask_base64" id="mask_base64">
         
+        <input type="text" name="mask_name" placeholder="Enter Mask Name" required>
+
+        <input type="hidden" name="mask_base64" id="mask_base64">
+        <input type="hidden" name="user_image_id" value="{{ image.id }}">
+
         <br>
         <button type="button" onclick="clearCanvas()" class="small-btn-login">Clear</button>
         <button type="submit" class="btn-login">Save Mask</button>

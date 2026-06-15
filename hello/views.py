@@ -2,6 +2,7 @@ from datetime import datetime
 import re
 
 from django.shortcuts import get_object_or_404, render
+from django.contrib import messages
 
 from django.http import HttpResponse
 
@@ -55,6 +56,7 @@ def upload_image(request):
         
         if form.is_valid(): # czy dane są ok?
             form.save()
+            messages.success(request, "The image has been successfully added to the database.")
             return redirect('user_panel') # przeskakuje na user panel
         else:
             print(form.errors) # jeśli dane nie są ok, to wyświetla błędy walidacji w konsoli
@@ -75,7 +77,7 @@ def upload_image(request):
 
 
 # POBIERAM ZDJĘCIA Z BAZY DANYCH I WYSWIETLAM JE!!!!!!!!
-from .models import Mask, UserImage
+from .models import UserMask, UserImage
 
 import base64
 
@@ -97,27 +99,219 @@ def create_binary_mask(request, image_id):
 import re
 from django.core.files.base import ContentFile
     
+    
+    
+    
+def run_pyradiomics(image_path,
+                    mask_path):
+    img_pil = Image.open(image_path).convert('L')  # Konwersja do odcieni szarości
+    img_array = np.array(img_pil)
+    
+    mask_pil = Image.open(mask_path).convert('L')  # Konwersja do odcieni szarości
+    mask_array = np.array(mask_pil)
+    
+    binary_mask_array = (mask_array > 0).astype(np.uint8)  # Konwersja do maski binarnej (0 i 1)
+    
+    img_sitk = sitk.GetImageFromArray(img_array)
+    mask_sitk = sitk.GetImageFromArray(binary_mask_array)
+    
+    mask_sitk.CopyInformation(img_sitk)  # Upewnij się, że maska ma te same informacje przestrzenne co obraz
+
+    # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    # USTAWIENIA EKSTRAKTORA CECH POD OBRAZU 2D PNG LUB JPG
+    settings = {
+        'force2D': True,  # Wymuszanie analizy 2D
+        'resampledPixelSpacing': None,  # Brak resamplingu
+        'force2Ddimension': 0,  # Analiza wzdłuż osi Z (dla obrazów 3D)
+    }
+    extractor = featureextractor.RadiomicsFeatureExtractor(**settings)
+    
+    # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    # OBLICZENIA NA BIBLIOTECE PYRADIOMICS
+    features = extractor.execute(img_sitk, mask_sitk)
+    
+    clean_features = {}
+    for key, value in features.items():
+        if isinstance(value, (int, float, str)):
+            clean_features[key] = value
+        else:
+            clean_features[key] = str(value)
+    
+    return clean_features
+ 
+    
+    
+    
+    
+# @login_required
+# def save_mask(request, image_id):
+#     if request.method == 'POST':
+#         # wyciągam tekst w formacie base64 z danych przesłanych przez użytkownika (mask_base64)
+#         mask_base64 = request.POST.get('mask_base64')
+        
+#         # usuwam prefiks base64, który jest dodawany do danych obrazu, aby uzyskać czyste dane binarne maski
+#         mask_data = re.sub('^data:image/.+;base64,', '', mask_base64)
+        
+#         # zamiana base64 na dane binarne do obrazka png
+#         mask_binary = base64.b64decode(mask_data)
+        
+#         file_name = f"mask_{image_id}_{request.user.id}.png"
+#         mask_file = ContentFile(mask_binary, name=file_name)
+            
+#         # wyświetl błąd w razie problemów z dekodowaniem
+#         original_image = get_object_or_404(UserImage, id=image_id)
+
+#         # nowy wiersz w tabeli hello_mask z nazwą maski - w bazie jest tylko ścieżka do tego pliku
+#         new_mask = UserMask.objects.create(
+#             image=mask_file,
+#             user_image=original_image
+#         )
+#         messages.success(request, "The mask has been successfully uploaded to the database.")
+            
+#         return redirect('user_panel')
+    
+# from django.shortcuts import render, get_object_or_404
+# from .models import UserImage
+
+# def create_binary_mask_view(request, image_id):  # Django automatycznie przekaże tu '6'
+#     # Pobieramy obrazek z bazy, żeby wyświetlić go użytkownikowi do rysowania
+#     obrazek = get_object_or_404(UserImage, id=image_id)
+    
+#     # Przekazujemy 'image_id' oraz cały obiekt 'obrazek' do pliku HTML
+#     return render(request, 'create_binary_mask.html', {
+#         'image_id': image_id, 
+#         'obrazek': obrazek
+#     })
+    
+    
+    
+    
+from django.http import JsonResponse
+from .models import UserImage, UserMask
+
+
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+# PYRADIOMICS LIBRARY
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+import SimpleITK as sitk
+import numpy as np
+
+from PIL import Image
+
+from django.core.files.base import ContentFile
+from django.shortcuts import render, redirect, get_object_or_404
+from django.http import HttpResponse
+
+from .models import UserMask, UserImage, RadiomicsResult
+
+from radiomics import featureextractor
+
+
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+# WIDOK DO ZAPISYWANIA MASKI I WYNIKÓW RADIOMICS DO BAZY DANYCH
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 @login_required
 def save_mask(request, image_id):
+    
+    img_original = get_object_or_404(UserImage, id=image_id)
+    
     if request.method == 'POST':
-        # wyciągam tekst w formacie base64 z danych przesłanych przez użytkownika (mask_base64)
-        mask_base64 = request.POST.get('mask_base64')
+        # Odbieramy przesłane dane z JavaScriptu
+        user_image_id = request.POST.get('user_image_id')
         
-        # usuwam prefiks base64, który jest dodawany do danych obrazu, aby uzyskać czyste dane binarne maski
-        mask_data = re.sub('^data:image/.+;base64,', '', mask_base64)
+        # mask_file = request.FILES.get('image')
+        image_data_base64 = request.POST.get('mask_base64')
         
-        # zamiana base64 na dane binarne do obrazka png
-        mask_binary = base64.b64decode(mask_data)
+        mask_name = request.POST.get('name') or f"Mask for Image {user_image_id}"
         
-        file_name = f"mask_{image_id}_{request.user.id}.png"
-        mask_file = ContentFile(mask_binary, name=file_name)
-            
-        # wyświetl błąd w razie problemów z dekodowaniem
-        original_image = get_object_or_404(UserImage, id=image_id)
+        # odkodowanie base64 do binarnego pliku obrazu
+        format, imgstr = image_data_base64.split(';base64,')
+        ext = format.split('/')[-1]
+        
+        mask_file = ContentFile(base64.b64decode(imgstr), name=f"mask_{user_image_id}.{ext}")
 
-        # nowy wiersz w tabeli hello_mask z nazwą maski - w bazie jest tylko ścieżka do tego pliku
-        new_mask = Mask.objects.create(
+        # zapisanie maski do bazy danych i powiązanie jej z odpowiednim obrazkiem
+        new_mask = UserMask(
+            name=mask_name,
             image=mask_file,
+            user_image=img_original  # <--- Przypisanie klucza obcego!
         )
+        new_mask.save()
+        
+        messages.success(request, "The mask has been successfully uploaded to the database.")
+
+        try:
+            path_to_image = img_original.image.path
+            path_to_mask = new_mask.image.path
             
-        return redirect('user_panel')
+            # uruchomienie funkcji run_pyradiomics
+            features = run_pyradiomics(path_to_image, path_to_mask)
+            
+            results_db = RadiomicsResult(
+                user_mask=new_mask,
+                features=features
+            )
+            results_db.save()
+        
+        except Exception as e:
+            print(f"Error during radiomics feature extraction: {e}")
+            return HttpResponse(f"Mask was saved, but the radiomic calculations failed: {e}", status=500)
+        
+        return redirect('user_panel')  # Przekierowanie do panelu użytkownika po zapisaniu maski i wyników radiomics
+
+    return JsonResponse({'status': 'error', 'message': 'Invalid request type.'}, status=400)
+
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+# WIDOK DO WYBIERANIA MASKI Z WYNIKAMI RADIOMICS
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+@login_required
+def view_radiomics_results(request):
+    masks = UserMask.objects.filter(radiomics_result__isnull=False).select_related('user_image')
+    return render(request, "hello/select_mask_for_radiomics.html", {
+        'masks': masks
+    })
+
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+# WIDOK DO WYŚWIETLANIA WYNIKÓW RADIOMICS DLA KONKRETNEJ MASKI
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+@login_required
+def view_radiomics_result(request, mask_id):
+    mask = get_object_or_404(UserMask, id=mask_id)
+    
+    try:
+        radiomics_result = mask.radiomics_result
+    except RadiomicsResult.DoesNotExist:
+        return HttpResponse("No radiomics results found for this mask.", status=404)
+    
+    features = []
+    
+    for key, value in radiomics_result.features.items():
+        if key.startswith('diagnostics_') or 'diagnostics' in key:
+            category = 'diagnostic'
+        elif 'shape2D' in key or 'shape_2d' in key or 'shape' in key:
+            category = 'shape_2d'
+        elif 'firstorder' in key or 'first_order' in key:
+            category = 'first_order'
+        elif 'glcm' in key:
+            category = 'glcm'
+        elif 'glrlm' in key:
+            category = 'glrlm'
+        elif 'other' in key:
+            category = 'other'
+        else:
+            category = 'other'
+        features.append({
+            'feature_name': key,
+            'feature_value': value,
+            'category': category
+        })
+    
+    return render(request, "hello/view_radiomics_result.html", {
+        'mask': mask,
+        'radiomics_result': radiomics_result,
+        'features': features
+    })
