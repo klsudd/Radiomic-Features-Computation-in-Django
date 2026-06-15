@@ -124,7 +124,7 @@
     width: 500px;
 }
 
-upload-box form p {
+.upload-box form p {
     margin-bottom: 20px;
 }
 
@@ -183,7 +183,7 @@ input[type="file"] {
     transform: translateY(-2px);
 }
 
-file-upload-wrapper {
+.file-upload-wrapper {
     display: flex;
     align-items: center;
 }
@@ -358,4 +358,38 @@ input[type="file"]::file-selector-button:hover {
 
 .btn-cta:active {
     transform: translateY(0);
+}
+
+.drag-and-drop {
+    border: 2px dashed #6b89c4;
+    border-radius: 8px;
+    padding: 40px;
+    text-align: center;
+    color: #6b89c4;
+    font-size: 1.2rem;
+    width: 500px;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.drag-and-drop:hover {
+    background-color: #f0f4ff;
+    border-color: #5275aa;
+}
+
+.drag-and-drop-area {
+    border: 2px dashed #6b89c4;
+    border-radius: 8px;
+    padding: 40px;
+    text-align: center;
+    color: #6b89c4;
+    background-color: #ffffff;
+    width: 500px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.drag-and-drop-area.hover {
+    background-color: #86aef9;
+    border-color: #5275aa;
+    border-width: 3px;
 }

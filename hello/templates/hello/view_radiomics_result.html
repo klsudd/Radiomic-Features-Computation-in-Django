@@ -12,8 +12,49 @@ Radiomic Results
     {% if user.is_authenticated %}
     <br>
         <h5>Hello, {{ user.username }}! Here are the radiomic results for your selected mask:</h5>
-        <br>
         <p><strong>Mask:</strong> {{ mask.name }} &mdash; <em>{{ mask.user_image.title }}</em></p>
+
+        <br>
+        <h5>Before you go, please check out the ROI Bar Plot!</h5>
+        <p>Just click the button below</p>
+
+        <a href="{% url 'bar_plot' mask.id %}" class="small-btn-login">
+            ROI Bar Plot
+        </a>
+        <br>
+
+        <form method="GET" class="row g-3 mb-4 align-items-end p-3 bg-light border rounded">
+        
+            <div class="col-md-3">
+                <label for="search_text" class="form-label">Search (Text):</label>
+                <input type="text" name="search_text" id="search_text" class="form-control" 
+                    value="{{ search_text }}" placeholder="np. glcm, shape...">
+            </div>
+        
+            <div class="col-md-3">
+                <label for="min_value" class="form-label">Minimal value (Number):</label>
+                <input type="number" step="any" name="min_value" id="min_value" class="form-control" 
+                    value="{{ min_value }}" placeholder="np. 0.05">
+            </div>
+
+            <div class="col-md-3">
+                <label for="per_page" class="form-label">Quantity of results per page:</label>
+                <select name="per_page" id="per_page" class="form-select">
+                    <option value="10" {% if per_page == 10 %}selected{% endif %}>10</option>
+                    <option value="25" {% if per_page == 25 %}selected{% endif %}>25</option>
+                    <option value="50" {% if per_page == 50 %}selected{% endif %}>50</option>
+                </select>
+            </div>
+
+            <div class="col-md-2">
+                <label for="page" class="form-label">Jump to page:</label>
+                <input type="number" min="1" max="{{ page_obj.paginator.num_pages }}" name="page" id="page" class="form-control" value="{{ page_obj.number }}">
+            </div>
+
+            <div class="col-md-1">
+                <button type="submit" class="btn btn-primary w-100"><i class="bi bi-search"></i></button>
+            </div>
+        </form>
 
         <div class="filters card p-4" style="margin-bottom: 20px; background-color: #f8f9fa; border: 1px solid #e0e0e0;">
             <h5 class="card-title mb-3">Filter Features by Category</h5>
@@ -69,22 +110,61 @@ Radiomic Results
             </div>
         </div>
 
-        <table id="radiomicsTable">
-            <thead>
-                <tr>
-                    <th>Feature Name</th>
-                    <th>Feature Value</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for feature in features %}
-                    <tr class="feature-row {{ feature.category }}">
-                        <td>{{ feature.feature_name }}</td>
-                        <td>{{ feature.feature_value }}</td>
+        <br>
+        <h5>Want to import your selected data to a CSV file?</h5>
+        <h6>Import checked features to CSV file with the button below:</h6>
+        <button class="small-btn-login" onclick="exportTableToCSV('radiomic_results.csv')">
+            <i class="bi bi-file-earmark-spreadsheet"></i>
+            Export to CSV
+        </button>
+        <br>
+
+        {% if page_obj.object_list %}
+            <table id="radiomicsTable">
+                <thead>
+                    <tr>
+                        <th>Feature Name</th>
+                        <th>Feature Value</th>
                     </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    {% for feature in page_obj %}
+                        <tr class="feature-row {{ feature.category }}">
+                            <td>{{ feature.feature_name }}</td>
+                            <td>{{ feature.feature_value }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <nav aria-label="Page navigation" class="mt-4">
+                <ul class="pagination justify-content-center">
+                    {% if page_obj.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?search_text={{ search_text|urlencode }}&min_value={{ min_value|urlencode }}&per_page={{ per_page }}&page={{ page_obj.previous_page_number }}">Previous</a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled"><span class="page-link">Previous</span></li>
+                    {% endif %}
+
+                    <li class="page-item disabled">
+                        <span class="page-link">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+                    </li>
+
+                    {% if page_obj.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?search_text={{ search_text|urlencode }}&min_value={{ min_value|urlencode }}&per_page={{ per_page }}&page={{ page_obj.next_page_number }}">Next</a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled"><span class="page-link">Next</span></li>
+                    {% endif %}
+                </ul>
+            </nav>
+        {% else %}
+            <div class="alert alert-warning mt-3" role="alert">
+                No features match the current search and minimal value filters.
+            </div>
+        {% endif %}
 
         <script>
             function filterTable() {
@@ -116,6 +196,70 @@ Radiomic Results
                     }
                 });
             }
+
+
+            // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            // IMPORTOWANIE ZAZNACZONYCH DANYCH DO PLIKU CSV
+            // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+
+            function exportTableToCSV(filename) {
+                const csv = []; // pusta tablica do której dodawane będą wiersze do eksportu
+                
+                // szuka nagłówków <th> i przechowuje je w headerRow
+                const headerRow = document.querySelectorAll('#radiomicsTable thead th');
+                // pusta tablica do przechowywania nagłówków
+                const headerData = [];
+
+                // iteruje po nagłówkach i dodaje ich tekst do headerData
+                for (const cell of headerRow) {
+                    headerData.push(cell.innerText);
+                }
+                // łączy wszystkie nagłówki przecinkiem i dodaje do tablicy csv
+                csv.push(headerData.join(','));
+                
+                // szuka wszystkich wierszy <tr> w <tbody> i przechowuje je w rows
+                const rows = document.querySelectorAll('#radiomicsTable tbody .feature-row');
+                for (const row of rows) {
+                    if (row.style.display === 'none') {
+                        continue;
+                    }
+                    
+                    // jeśli wiersz jest ukryty, continue
+                    const cols = row.querySelectorAll('td');
+                    const rowData = [];
+
+                    // dla każdej komórki w wierszu pobierz tekst komórki i sformatuj
+                    for (const col of cols) {
+                        let text = col.innerText.replace(/"/g, '""');
+                        if (text.includes(',') || text.includes('\n')) {
+                            text = '"' + text + '"';
+                        }
+                        rowData.push(text);
+                    }
+                    // dodanie do głównej tablicy csv
+                    csv.push(rowData.join(','));
+                }
+
+                // łączenie nagłówka i danych do jednego pliku
+                const csvContent = csv.join('\n');
+                const csvBlob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(csvBlob);
+                link.download = filename; // powiadamia przeglądarkę, że chcemy pobrać plik o nazwie filename
+                link.style.display = 'none';
+                
+                // dodanie linku do dokumentu, kliknięcie go i usunięcie (czyszczenie)
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+
+
+
+
+
         </script>
 </div>
 

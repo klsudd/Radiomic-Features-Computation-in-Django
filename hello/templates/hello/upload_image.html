@@ -46,6 +46,98 @@ Upload Image
 
         </div>
     </div>
+
+        <h3>Alternatively, you can also drag and drop your image here!</h3>
+        <h5>Just drop your image in the area below and it will be automatically uploaded to our database.</h5>
+    
+        <div id="drag-and-drop" class="drag-and-drop-area">
+            <br>
+            <p>Drag and drop your image here</p>
+        </div>
+
+        <div id="result" class="upload-result">
+            <br>
+            <p>No files added yet.</p>
+        </div>
+
+    <script>
+        const dropZone = document.getElementById('drag-and-drop');
+        const resultDiv = document.getElementById('result');
+
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, preventDefaults, false);
+            document.body.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropZone.addEventListener(eventName, () => dropZone.classList.add('highlight'), false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, () => dropZone.classList.remove('highlight'), false);
+        });
+
+        function highlight(e) {
+            dropZone.classList.add('hover');
+        }
+        function unhighlight(e) {
+            dropZone.classList.remove('hover');
+        }
+
+        dropZone.addEventListener('drop', handleDrop, false);
+
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+
+            if (files.length > 0) {
+                handleFiles(files);
+            } else {
+                resultDiv.textContent = "You dropped something that does not belong here";
+            }
+        }
+
+        function handleFiles(files) {
+            const file = files[0];
+            const formData = new FormData();
+            formData.append('image', file);
+            formData.append('title', file.name);
+            formData.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
+
+            fetch("{% url 'upload_image' %}", {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
+                } else {
+                    throw new Error('HTTP Error: ' + response.status);
+                }
+            })
+            .then(data => {
+                if (data.success) {
+                    resultDiv.innerHTML = '<div class="alert alert-success alert-dismissible fade show" role="alert">File uploaded successfully! Redirecting...</div>';
+                    setTimeout(() => {
+                        window.location.href = "{% url 'user_panel' %}";
+                    }, 1500);
+                } else {
+                    resultDiv.innerHTML = '<div class="alert alert-danger">' + (data.error || 'File upload failed.') + '</div>';
+                }
+            })
+            .catch(err => {
+                resultDiv.innerHTML = '<div class="alert alert-danger">An error occurred during file upload: ' + err.message + '</div>';
+            });
+        }
+    </script>
         
             <br>
             <p>Got lost?</p>

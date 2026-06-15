@@ -57,9 +57,15 @@ def upload_image(request):
         if form.is_valid(): # czy dane są ok?
             form.save()
             messages.success(request, "The image has been successfully added to the database.")
-            return redirect('user_panel') # przeskakuje na user panel
+            
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest' or 'csrfmiddlewaretoken' in request.POST:
+                return JsonResponse({'success': True, 'message': 'Image uploaded successfully'})
+            else:
+                return redirect('user_panel') # przeskakuje na user panel
         else:
             print(form.errors) # jeśli dane nie są ok, to wyświetla błędy walidacji w konsoli
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest' or 'csrfmiddlewaretoken' in request.POST:
+                return JsonResponse({'success': False, 'error': str(form.errors)}, status=400)
     
     else: # GET oznacza, że uzytkownik dopiero wszedł na stronę, django tworzy pusty formularz i sysyła go do szablonu
         form = ImageUploadForm()
@@ -276,6 +282,7 @@ def view_radiomics_results(request):
 
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 # WIDOK DO WYŚWIETLANIA WYNIKÓW RADIOMICS DLA KONKRETNEJ MASKI
+# SORTOWANIE PO TEKŚCIE, LICZBIE
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 @login_required
@@ -288,7 +295,6 @@ def view_radiomics_result(request, mask_id):
         return HttpResponse("No radiomics results found for this mask.", status=404)
     
     features = []
-    
     for key, value in radiomics_result.features.items():
         if key.startswith('diagnostics_') or 'diagnostics' in key:
             category = 'diagnostic'
@@ -304,14 +310,173 @@ def view_radiomics_result(request, mask_id):
             category = 'other'
         else:
             category = 'other'
+
+        numeric_value = None
+        if isinstance(value, (int, float)):
+            numeric_value = float(value)
+        elif isinstance(value, str):
+            try:
+                numeric_value = float(value)
+            except ValueError:
+                numeric_value = None
+
         features.append({
             'feature_name': key,
             'feature_value': value,
+            'feature_value_numeric': numeric_value,
             'category': category
         })
-    
+
+    search_text = request.GET.get('search_text', '').strip()
+    min_value = request.GET.get('min_value', '').strip()
+    per_page = request.GET.get('per_page', '10')
+    page_number = request.GET.get('page', '1')
+
+    if search_text:
+        features = [
+            f for f in features
+            if search_text.lower() in f['feature_name'].lower()
+        ]
+
+    if min_value:
+        try:
+            min_val_float = float(min_value)
+            features = [
+                f for f in features
+                if f['feature_value_numeric'] is not None and f['feature_value_numeric'] >= min_val_float
+            ]
+        except ValueError:
+            min_value = ''
+
+    try:
+        per_page = int(per_page)
+    except (ValueError, TypeError):
+        per_page = 10
+
+    if per_page <= 0:
+        per_page = 10
+    if per_page > 100:
+        per_page = 100
+
+    paginator = Paginator(features, per_page)
+    page_obj = paginator.get_page(page_number)
+
     return render(request, "hello/view_radiomics_result.html", {
         'mask': mask,
         'radiomics_result': radiomics_result,
-        'features': features
+        'features': page_obj,
+        'page_obj': page_obj,
+        'search_text': search_text,
+        'min_value': min_value,
+        'per_page': per_page,
+    })
+
+
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+# WIDOK GO GENEROWANIA HISTOGRAMU INTENSYWNOŚCI FIRST ORDER
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+import matplotlib
+import matplotlib.pyplot as plt
+matplotlib.use('Agg')  # Użycie backendu, który nie wymaga wyświetlania okien
+import io
+import numpy as np
+
+from .models import UserMask, RadiomicsResult
+
+@login_required
+def view_intensity_histogram(request, mask_id):
+    mask = get_object_or_404(UserMask, id = mask_id)
+    image = mask.user_image
+    
+    img_array = np.array(Image.open(image.image.path).convert('L'))
+    mask_array = np.array(Image.open(mask.image.path).convert('L'))
+    
+    masked_pixels = img_array[mask_array > 128]
+    
+    
+    fig, ax = plt.subplots(figsize = (7, 4))
+    ax.hist(masked_pixels, bins = 32, range = (0, 256), color = "#1E55BC", edgecolor = 'black', alpha = 0.8)
+    
+    ax.set_title(f"Pixel intensity distribution - {mask.name}")
+    ax.set_xlabel("Pixel value (0 - 255)")
+    ax.set_ylabel("Number of pixels")
+    ax.grid(axis='y', linestyle='--', alpha=0.7)
+    
+    plt.tight_layout()
+
+    # zapisywanie do ramu
+    buf = io.BytesIO()
+    plt.savefig(buf, format='png', dpi=100)
+    buf.seek(0)
+    plt.close(fig)
+
+    # zwrócenie obrazka do przeglądarki
+    return HttpResponse(buf, content_type='image/png')
+
+
+@login_required
+def bar_plot(request, mask_id):
+    mask = get_object_or_404(UserMask, id=mask_id)
+    return render(request, 'hello/bar_plot.html', {
+        'mask': mask
+    })
+    
+
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+# PAGINACJA I RESZTA BAJERÓW
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+from django.core.paginator import Paginator
+
+from .models import RadiomicsResult
+
+from django.core.paginator import Paginator
+from django.shortcuts import render, get_object_or_404
+from django.contrib.auth.decorators import login_required
+from .models import RadiomicsResult
+
+@login_required
+def view_radiomics_detail(request, mask_id):
+    result = get_object_or_404(RadiomicsResult, user_mask_id=mask_id)
+    
+    features_list = []
+    for key, val in result.features.items():
+        features_list.append({
+            'name': key,
+            'value': float(val) if isinstance(val, (int, float)) else val
+        })
+
+    search_text = request.GET.get('search_text', '')
+    min_value = request.GET.get('min_value', '')
+    per_page = request.GET.get('per_page', '10')
+    page_number = request.GET.get('page', '1')
+
+    if search_text:
+        features_list = [f for f in features_list if search_text.lower() in f['name'].lower()]
+    
+    if min_value:
+        try:
+            min_val_float = float(min_value)
+            features_list = [
+                f for f in features_list 
+                if isinstance(f['value'], (int, float)) and f['value'] >= min_val_float
+            ]
+        except ValueError:
+            pass
+
+    try:
+        per_page = int(per_page)
+    except ValueError:
+        per_page = 10
+
+    paginator = Paginator(features_list, per_page)
+    page_obj = paginator.get_page(page_number)
+
+    return render(request, 'hello/radiomics_detail.html', {
+        'page_obj': page_obj,
+        'wynik': result,
+        'search_text': search_text,
+        'min_value': min_value,
+        'per_page': per_page,
     })

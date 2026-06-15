@@ -1,0 +1,28 @@
+{% extends "hello/layout.html" %}
+
+{% block title %}
+ROI Bar Plot
+{% endblock %}
+
+{% block content %}
+
+<div class = "centered">
+    <h1>The Region Of Interest bar plot</h1>
+    <h3>Here you can check out the dynamically generated ROI bar plot for the selected mask!</h3>
+    <br>
+
+    <div class="card mb-4 shadow-sm">
+        <div class="card-body text-center">
+            <h5 class="card-title">Histogram ROI (Region of Interest)</h5>
+            <p class="text-muted small">Wykres generowany dynamicznie na serwerze na podstawie zaznaczonego obszaru.</p>
+        
+            <img src="{% url 'radiomics_histogram' mask.id %}" class="img-fluid rounded" alt="Histogram pikseli">
+        </div>
+    </div>
+
+    <a href="{% url 'view_radiomics_result' mask.id %}" class="small-btn-login">
+        Back to the results
+    </a>
+</div>
+
+{% endblock %}

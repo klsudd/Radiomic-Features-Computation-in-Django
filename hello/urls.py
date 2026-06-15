@@ -28,6 +28,8 @@ urlpatterns = [
 
     path("view_radiomics_results/", views.view_radiomics_results, name="view_radiomics_results"),
     path("view_radiomics_result/<int:mask_id>/", views.view_radiomics_result, name="view_radiomics_result"),
+    path('bar_plot/<int:mask_id>/', views.bar_plot, name='bar_plot'),
+    path('histogram/<int:mask_id>/', views.view_intensity_histogram, name='radiomics_histogram'),
 ]
 
 from django.conf import settings
