@@ -110,18 +110,18 @@ from django.core.files.base import ContentFile
     
 def run_pyradiomics(image_path,
                     mask_path):
-    img_pil = Image.open(image_path).convert('L')  # Konwersja do odcieni szarości
+    img_pil = Image.open(image_path).convert('L')
     img_array = np.array(img_pil)
     
-    mask_pil = Image.open(mask_path).convert('L')  # Konwersja do odcieni szarości
+    mask_pil = Image.open(mask_path).convert('L')
     mask_array = np.array(mask_pil)
     
-    binary_mask_array = (mask_array > 0).astype(np.uint8)  # Konwersja do maski binarnej (0 i 1)
+    binary_mask_array = (mask_array > 0).astype(np.uint8)
     
     img_sitk = sitk.GetImageFromArray(img_array)
     mask_sitk = sitk.GetImageFromArray(binary_mask_array)
     
-    mask_sitk.CopyInformation(img_sitk)  # Upewnij się, że maska ma te same informacje przestrzenne co obraz
+    mask_sitk.CopyInformation(img_sitk)
 
     # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     # USTAWIENIA EKSTRAKTORA CECH POD OBRAZU 2D PNG LUB JPG
@@ -378,7 +378,7 @@ def view_radiomics_result(request, mask_id):
 
 import matplotlib
 import matplotlib.pyplot as plt
-matplotlib.use('Agg')  # Użycie backendu, który nie wymaga wyświetlania okien
+matplotlib.use('Agg')
 import io
 import numpy as np
 

@@ -27,7 +27,37 @@
     max-width: 800px;
 }
 
-/* Utility class to center text on specific pages */
+body {
+    background: linear-gradient(180deg, #f5faff 0%, #ddecfe 100%);
+}
+
+.navbar {
+    background-color: #18588f; /* deep blue */
+    box-shadow: 0 4px 12px rgba(24,88,143,0.12);
+}
+.navbar .navbar-brand,
+.navbar .nav-link {
+    color: rgba(255,255,255,0.95) !important;
+}
+.navbar .nav-link:hover {
+    color: #dfeeff !important;
+}
+
+.small-btn-login-nav {
+    background-color: #eaf3ff;
+    color: #18588f;
+    border: 2px solid #d2e8ff;
+    padding: 6px 14px;
+    margin-left: auto;
+    border-radius: 8px;
+    font-weight: 700;
+    box-shadow: 0 6px 18px rgba(24,88,143,0.08);
+}
+.small-btn-login-nav:hover {
+    background-color: #d6e9ff;
+    color: #102e4d;
+}
+
 .centered {
     display: flex;
     flex-direction: column;
@@ -36,27 +66,60 @@
     gap: 12px;
 }
 
-/* Tables: increase spacing between columns and improve padding for readability */
+
+
 .radiomics-mask-table,
 #radiomicsTable {
     width: 100%;
     border-collapse: separate;
-    border-spacing: 18px 10px; /* horizontal, vertical spacing between cells */
+    border-spacing: 14px 10px;
     margin: 0 auto 20px auto;
+    background-color: rgba(232, 241, 254, 0.9);
+    border: 1px solid rgba(14, 73, 121, 0.18);
+    border-radius: 14px;
+    overflow: hidden;
+}
+.radiomics-mask-table thead,
+#radiomicsTable thead {
+    background-color: #4d82d6;
 }
 .radiomics-mask-table th,
 .radiomics-mask-table td,
 #radiomicsTable th,
 #radiomicsTable td {
-    padding: 12px 18px;
+    padding: 14px 18px;
     text-align: left;
     vertical-align: middle;
 }
 .radiomics-mask-table thead th,
 #radiomicsTable thead th {
     font-weight: 700;
-    color: #113f67;
+    color: #103a60;
+    border-bottom: 2px solid rgba(24, 88, 143, 0.25);
+    text-transform: none;
+    letter-spacing: normal;
+    text-align: center;
 }
+.radiomics-mask-table tbody tr,
+#radiomicsTable tbody tr {
+    background-color: rgba(255, 255, 255, 0.9);
+    transition: background-color 0.2s ease;
+}
+.radiomics-mask-table tbody tr:nth-child(even),
+#radiomicsTable tbody tr:nth-child(even) {
+    background-color: rgba(200, 220, 245, 0.95);
+}
+.radiomics-mask-table tbody tr:hover,
+#radiomicsTable tbody tr:hover {
+    background-color: rgba(197, 216, 243, 0.95);
+}
+.radiomics-mask-table td,
+#radiomicsTable td {
+    color: #1f3f72;
+}
+
+
+
 
 .h1 {
     font-size: 2em;
@@ -85,7 +148,7 @@
 }
 
 .signup-box {
-    background: #b0b6e0;
+    background: linear-gradient(180deg, #9bd0fe 0%, #86b1ee 100%);
     padding: 2rem;
     border-radius: 8px;
     box-shadow: 0 4px 6px rgba(0,0,0,0.1);
@@ -117,7 +180,7 @@
 }
 
 .upload-box {
-    background: #b0b6e0;
+    background: linear-gradient(180deg, #9bd0fe 0%, #86b1ee 100%);
     padding: 2rem;
     border-radius: 8px;
     box-shadow: 0 4px 6px rgba(0,0,0,0.1);
@@ -137,7 +200,7 @@
     box-sizing: border-box;
 }
 
-/* Styled inputs for forms matching site aesthetic */
+
 .styled-input {
     width: 100%;
     max-width: 420px;
@@ -167,7 +230,9 @@ input[type="file"] {
 
 
 .custom-file-upload {
-    display: inline-block;
+    display: block;
+    width: fit-content;
+    margin: 0 auto;
     padding: 6px 12px;
     cursor: pointer;
     background-color: #6b89c4;
@@ -220,7 +285,7 @@ input[type="file"]::file-selector-button:hover {
 }
 
 .login-box {
-    background: #b0b6e0;
+    background: linear-gradient(180deg, #9bd0fe 0%, #86b1ee 100%);
     padding: 2rem;
     border-radius: 8px;
     box-shadow: 0 4px 6px rgba(0,0,0,0.1);
@@ -343,7 +408,7 @@ input[type="file"]::file-selector-button:hover {
     font-weight: 600;
     letter-spacing: 0.5px;
     box-shadow: 0 4px 15px rgba(59, 89, 152, 0.3);
-    transition: all 0.3s ease; /* płynna animacja */
+    transition: all 0.3s ease;
 
     display: block;
     margin: 20px auto;

@@ -12,8 +12,8 @@ Select Mask for Radiomics
     <h5>Hello, {{ user.username }}! Take a look at the list of masks in the table below.</h5>
     <br>
     {% if masks %}
-        <table class="table table-hover table-striped">
-            <thead class="table-light">
+        <table class="table table-hover table-striped radiomics-mask-table" table id="radiomicsTable">
+            <thead>
                 <tr>
                     <th scope="col">Mask Name</th>
                     <th scope="col">Image</th>
